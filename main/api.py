@@ -1,8 +1,9 @@
+from django.db.models import ProtectedError
 from django.http import HttpResponse
 
-from .models import Account, Location, AnimalType
+from .models import Account, Location, AnimalType, AnimalLocation, Animal
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, LocationSerializer, AnimalTypeSerializer
+from .serializers import AccountSerializer, LocationSerializer, AnimalTypeSerializer, AnimalLocationSerializer, AnimalSerializer
 from django.http import JsonResponse
 
 
@@ -99,7 +100,10 @@ class LocationViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk):
         if pk is None or int(pk) <= 0:
             return HttpResponse(status=400)
-        return super(LocationViewSet, self).destroy(request, pk=None)
+        try:
+            return super(LocationViewSet, self).destroy(request, pk=None)
+        except ProtectedError:
+            return HttpResponse(status=400)
 
 
 class AnimalTypeViewSet(viewsets.ModelViewSet):
@@ -134,3 +138,19 @@ class AnimalTypeViewSet(viewsets.ModelViewSet):
         if pk is None or int(pk) <= 0:
             return HttpResponse(status=400)
         return super(AnimalTypeViewSet, self).destroy(request, pk=None)
+
+
+class AnimalLocationViewSet(viewsets.ModelViewSet):
+    queryset = AnimalLocation.objects.all()
+    permission_classes = [
+        permissions.AllowAny
+    ]
+    serializer_class = AnimalLocationSerializer
+
+
+class AnimalViewSet(viewsets.ModelViewSet):
+    queryset = Animal.objects.all()
+    permission_classes = [
+        permissions.AllowAny
+    ]
+    serializer_class = AnimalSerializer
