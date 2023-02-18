@@ -1,10 +1,25 @@
+from datetime import datetime
+from itertools import chain
+
 from django.db.models import ProtectedError
 from django.http import HttpResponse
+from django.http import JsonResponse
+from rest_framework import viewsets, permissions
 
 from .models import Account, Location, AnimalType, AnimalLocation, Animal
-from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, LocationSerializer, AnimalTypeSerializer, AnimalLocationSerializer, AnimalSerializer
-from django.http import JsonResponse
+from .serializers import AccountSerializer, LocationSerializer, AnimalTypeSerializer, AnimalLocationSerializer, \
+    AnimalSerializer
+
+
+def to_dict(instance):
+    opts = instance._meta
+    data = {}
+    for f in chain(opts.concrete_fields, opts.private_fields):
+        if f.name != 'password':
+            data[f.name] = f.value_from_object(instance)
+    for f in opts.many_to_many:
+        data[f.name] = [i.id for i in f.value_from_object(instance)]
+    return data
 
 
 class AccountViewSet(viewsets.ModelViewSet):
@@ -19,14 +34,20 @@ class AccountViewSet(viewsets.ModelViewSet):
             firstname = self.request.query_params.get('firstName')
             lastname = self.request.query_params.get('lastName')
             email = self.request.query_params.get('email')
-            try:
-                from_ = int(self.request.query_params.get('from'))
-            except:
+            if self.request.query_params.get('from') is None:
                 from_ = 0
-            try:
-                size = int(self.request.query_params.get('size'))
-            except:
+            else:
+                try:
+                    from_ = int(self.request.query_params.get('from'))
+                except:
+                    return HttpResponse(status=400)
+            if self.request.query_params.get('size') is None:
                 size = 10
+            else:
+                try:
+                    size = int(self.request.query_params.get('size'))
+                except:
+                    return HttpResponse(status=400)
             if from_ < 0 or size <= 0:
                 return HttpResponse(status=400)
             query = Account.objects.all()
@@ -35,8 +56,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 if firstname is None or firstname.lower() in acc.firstName.lower():
                     if lastname is None or lastname.lower() in acc.lastname.lower():
                         if email is None or email.lower() in acc.email.lower():
-                            list.append({'id': acc.id, 'firstName': acc.firstName,
-                                         'lastName': acc.lastName, 'email': acc.email})
+                            list.append(to_dict(acc))
             return JsonResponse(list[from_:size], safe=False)
         if pk is None or int(pk) <= 0:
             return HttpResponse(status=400)
@@ -154,3 +174,89 @@ class AnimalViewSet(viewsets.ModelViewSet):
         permissions.AllowAny
     ]
     serializer_class = AnimalSerializer
+
+    def retrieve(self, request, pk=None):
+        if pk == "search":
+            if self.request.query_params.get('startDateTime') is None:
+                startdatetime = None
+            else:
+                try:
+                    startdatetime = datetime.fromisoformat(self.request.query_params.get('startDateTime'))
+                except:
+                    return HttpResponse(status=400)
+            if self.request.query_params.get('endDateTime') is None:
+                enddatetime = None
+            else:
+                try:
+                    enddatetime = datetime.fromisoformat(self.request.query_params.get('endDateTime'))
+                except:
+                    return HttpResponse(status=400)
+            try:
+                if self.request.query_params.get('chipperId') is not None:
+                    chipperid = int(self.request.query_params.get('chipperId'))
+                else:
+                    chipperid = None
+            except:
+                return HttpResponse(status=400)
+            try:
+                if self.request.query_params.get('chippingLocationId') is not None:
+                    chippinglocationid = int(self.request.query_params.get('chippingLocationId'))
+                else:
+                    chippinglocationid = None
+            except:
+                return HttpResponse(status=400)
+            lifestatus = self.request.query_params.get('lifeStatus')
+            gender = self.request.query_params.get('gender')
+            if lifestatus != 'ALIVE' and lifestatus != 'DEAD' and lifestatus is not None:
+                return HttpResponse(status=400)
+            if gender != 'MALE' and gender != 'FEMALE' and gender != 'OTHER' and gender is not None:
+                return HttpResponse(status=400)
+            if self.request.query_params.get('from') is None:
+                from_ = 0
+            else:
+                try:
+                    from_ = int(self.request.query_params.get('from'))
+                except:
+                    return HttpResponse(status=400)
+            if self.request.query_params.get('size') is None:
+                size = 10
+            else:
+                try:
+                    size = int(self.request.query_params.get('size'))
+                except:
+                    return HttpResponse(status=400)
+            if from_ < 0 or size <= 0 or (chipperid is not None and chipperid <= 0) or (
+                    chippinglocationid is not None and chippinglocationid <= 0):
+                return HttpResponse(status=400)
+            query = Animal.objects.all()
+            list = []
+            for animal in query:
+                if startdatetime is None or startdatetime.timestamp() <= animal.chippingDateTime.timestamp():
+                    if enddatetime is None or enddatetime.timestamp() >= animal.chippingDateTime.timestamp():
+                        if chipperid is None or chipperid == animal.chipperId.id:
+                            if chippinglocationid is None or chippinglocationid == animal.chippingLocationId.id:
+                                if gender is None or gender == animal.gender:
+                                    if lifestatus is None or lifestatus == animal.lifeStatus:
+                                        list.append(to_dict(animal))
+
+            return JsonResponse(list[from_:size], safe=False)
+        if pk is None or int(pk) <= 0:
+            return HttpResponse(status=400)
+        return super(AnimalViewSet, self).retrieve(request, pk=None)
+
+    def create(self, request):
+        types = request.data.get('animalTypes')
+        chipperid = request.data.get('chipperId')
+        chippinglocationid = request.data.get('chippingLocationId')
+        if request.data.get('weight') <= 0 or request.data.get('length') <= 0 or request.data.get('height') <= 0:
+            return HttpResponse(status=400)
+        if types != list(set(types)):
+            return HttpResponse(status=409)
+        for animaltype in types:
+            if animaltype > 0 and {'id': animaltype} not in Animal.objects.values('id'):
+                return HttpResponse(status=404)
+        if chipperid > 0 and {'id': chipperid} not in Account.objects.values('id'):
+            return HttpResponse(status=404)
+        if chippinglocationid > 0 and {'id': chippinglocationid} not in Location.objects.values('id'):
+            return HttpResponse(status=404)
+        return super(AnimalViewSet, self).create(request)

@@ -30,4 +30,6 @@ class AnimalLocationSerializer(serializers.ModelSerializer):
 class AnimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Animal
-        fields = '__all__'
+        fields = ('id', 'animalTypes', 'weight', 'length', 'height', 'gender',
+                  'lifeStatus', 'chippingDateTime', 'chipperId', 'chippingLocationId',
+                  'visitedLocations', 'deathDateTime')

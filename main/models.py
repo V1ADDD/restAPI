@@ -57,12 +57,12 @@ class Animal(models.Model):
     weight = models.FloatField()
     length = models.FloatField()
     height = models.FloatField()
-    gender = models.CharField(max_length=15, choices=[('M', 'Male'), ('F', 'Female'), ('O', 'Other')])
-    lifeStatus = models.CharField(max_length=10, choices=[('A', 'Alive'), ('D', 'Dead')], default='A', blank=True)
+    gender = models.CharField(max_length=15, choices=[('MALE', 'MALE'), ('FEMALE', 'FEMALE'), ('OTHER', 'OTHER')])
+    lifeStatus = models.CharField(max_length=10, choices=[('ALIVE', 'ALIVE'), ('DEAD', 'DEAD')], default='ALIVE', blank=True)
     chippingDateTime = models.DateTimeField(auto_now_add=True, blank=True)
-    chipperID = models.ForeignKey(Account, on_delete=models.PROTECT)
+    chipperId = models.ForeignKey(Account, on_delete=models.PROTECT)
     chippingLocationId = models.ForeignKey(Location, on_delete=models.PROTECT)
-    visitedLocations = models.ManyToManyField(AnimalLocation)
+    visitedLocations = models.ManyToManyField(AnimalLocation, blank=True)
     deathDateTime = models.DateTimeField(null=True, blank=True)
 
     class Meta:
@@ -71,8 +71,8 @@ class Animal(models.Model):
 
 @receiver(pre_save, sender=Animal)
 def set_death_date(sender, instance, **kwargs):
-    if instance.lifeStatus:
+    if instance.pk:
         now = datetime.now()
         obj = sender._default_manager.get(pk=instance.id)
-        if instance.lifeStatus == 'D' and obj.lifeStatus != 'D':
+        if instance.lifeStatus == 'DEAD' and obj.lifeStatus != 'DEAD':
             instance.deathDateTime = now
