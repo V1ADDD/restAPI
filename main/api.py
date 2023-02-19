@@ -248,15 +248,43 @@ class AnimalViewSet(viewsets.ModelViewSet):
         types = request.data.get('animalTypes')
         chipperid = request.data.get('chipperId')
         chippinglocationid = request.data.get('chippingLocationId')
-        if request.data.get('weight') <= 0 or request.data.get('length') <= 0 or request.data.get('height') <= 0:
-            return HttpResponse(status=400)
-        if types != list(set(types)):
-            return HttpResponse(status=409)
-        for animaltype in types:
-            if animaltype > 0 and {'id': animaltype} not in Animal.objects.values('id'):
-                return HttpResponse(status=404)
-        if chipperid > 0 and {'id': chipperid} not in Account.objects.values('id'):
-            return HttpResponse(status=404)
-        if chippinglocationid > 0 and {'id': chippinglocationid} not in Location.objects.values('id'):
-            return HttpResponse(status=404)
+        if request.data.get('weight') is not None and request.data.get('length') is not None and request.data.get(
+                'height') is not None:
+            if request.data.get('weight') <= 0 or request.data.get('length') <= 0 or request.data.get('height') <= 0:
+                return HttpResponse(status=400)
+            if types is not None:
+                if types != list(set(types)):
+                    return HttpResponse(status=409)
+                for animaltype in types:
+                    if animaltype is not None:
+                        if animaltype > 0 and {'id': animaltype} not in AnimalType.objects.values('id'):
+                            return HttpResponse(status=404)
+                if chipperid is not None and chippinglocationid is not None:
+                    if chipperid > 0 and {'id': chipperid} not in Account.objects.values('id'):
+                        return HttpResponse(status=404)
+                    if chippinglocationid > 0 and {'id': chippinglocationid} not in Location.objects.values('id'):
+                        return HttpResponse(status=404)
         return super(AnimalViewSet, self).create(request)
+
+    def update(self, request, pk):
+        if pk is None or int(pk) <= 0:
+            return HttpResponse(status=400)
+        if {"id": pk} not in Animal.objects.values('id'):
+            return HttpResponse(status=404)
+        chipperid = request.data.get('chipperId')
+        chippinglocationid = request.data.get('chippingLocationId')
+        if request.data.get('weight') is not None and request.data.get('length') is not None and request.data.get(
+                'height') is not None:
+            if request.data.get('weight') <= 0 or request.data.get('length') <= 0 or request.data.get('height') <= 0:
+                return HttpResponse(status=400)
+            if request.data.get('lifeStatus'):
+                if request.data.get('lifeStatus') == 'ALIVE' and Animal.objects.get(id=pk).lifeStatus == 'DEAD':
+                    return HttpResponse(status=400)
+                if chipperid is not None and chippinglocationid is not None:
+                    if chippinglocationid == Animal.objects.get(id=pk).visitedLocations.values()[0]['locationPointId_id']:
+                        return HttpResponse(status=400)
+                    if chipperid > 0 and {'id': chipperid} not in Account.objects.values('id'):
+                        return HttpResponse(status=404)
+                    if chippinglocationid > 0 and {'id': chippinglocationid} not in Location.objects.values('id'):
+                        return HttpResponse(status=404)
+        return super(AnimalViewSet, self).update(request, pk)
