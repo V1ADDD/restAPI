@@ -35,7 +35,7 @@ class AnimalType(models.Model):
     type = models.CharField(max_length=150)
 
     def __str__(self):
-        return self.type
+        return str(self.id)+". "+self.type
 
     class Meta:
         ordering = ['id']

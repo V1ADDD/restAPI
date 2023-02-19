@@ -4,7 +4,8 @@ from itertools import chain
 from django.db.models import ProtectedError
 from django.http import HttpResponse
 from django.http import JsonResponse
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, mixins
+from rest_framework.decorators import action
 
 from .models import Account, Location, AnimalType, AnimalLocation, Animal
 from .serializers import AccountSerializer, LocationSerializer, AnimalTypeSerializer, AnimalLocationSerializer, \
@@ -281,10 +282,79 @@ class AnimalViewSet(viewsets.ModelViewSet):
                 if request.data.get('lifeStatus') == 'ALIVE' and Animal.objects.get(id=pk).lifeStatus == 'DEAD':
                     return HttpResponse(status=400)
                 if chipperid is not None and chippinglocationid is not None:
-                    if chippinglocationid == Animal.objects.get(id=pk).visitedLocations.values()[0]['locationPointId_id']:
+                    if chippinglocationid == Animal.objects.get(id=pk).visitedLocations.values()[0][
+                        'locationPointId_id']:
                         return HttpResponse(status=400)
                     if chipperid > 0 and {'id': chipperid} not in Account.objects.values('id'):
                         return HttpResponse(status=404)
                     if chippinglocationid > 0 and {'id': chippinglocationid} not in Location.objects.values('id'):
                         return HttpResponse(status=404)
         return super(AnimalViewSet, self).update(request, pk)
+
+    def destroy(self, request, pk):
+        if pk is None or int(pk) <= 0:
+            return HttpResponse(status=400)
+        if {"id": int(pk)} not in Animal.objects.values('id'):
+            return HttpResponse(status=404)
+        if len(Animal.objects.get(id=pk).visitedLocations.values()) > 0:
+            return HttpResponse(status=400)
+        return super(AnimalViewSet, self).destroy(request, pk)
+
+    @action(methods=['delete', 'post'], detail=True, url_path='types/(?P<typeId>[^/.]+)')
+    def type_post_delete(self, request, pk, typeId):
+        if request.method == 'DELETE':
+            if pk is None or typeId is None or int(pk) <= 0 or int(typeId) <= 0:
+                return HttpResponse(status=400)
+            if {"id": int(pk)} not in Animal.objects.values('id') or {
+                "id": int(typeId)} not in AnimalType.objects.values(
+                    'id'):
+                return HttpResponse(status=404)
+            if {'id': int(typeId)} not in Animal.objects.get(id=int(pk)).animalTypes.values('id'):
+                return HttpResponse(status=404)
+            if len(Animal.objects.get(id=int(pk)).animalTypes.values('id')) == 1 and \
+                    Animal.objects.get(id=int(pk)).animalTypes.values('id')[0] == {'id': int(typeId)}:
+                return HttpResponse(status=400)
+            removeAnimalType = Animal.objects.get(id=int(pk)).animalTypes.get(id=int(typeId))
+            Animal.objects.get(id=int(pk)).animalTypes.remove(removeAnimalType)
+            queryset = super(AnimalViewSet, self).get_queryset().get(id=pk)
+            serializer = AnimalSerializer(queryset)
+            return JsonResponse(serializer.data, safe=False)
+
+        elif request.method == 'POST':
+            if pk is None or typeId is None or int(pk) <= 0 or int(typeId) <= 0:
+                return HttpResponse(status=400)
+            if {"id": int(pk)} not in Animal.objects.values('id') or {
+                "id": int(typeId)} not in AnimalType.objects.values(
+                'id'):
+                return HttpResponse(status=404)
+            if {'id': int(typeId)} not in AnimalType.objects.values('id'):
+                return HttpResponse(status=404)
+            if {'id': int(typeId)} in Animal.objects.get(id=int(pk)).animalTypes.values('id'):
+                return HttpResponse(status=409)
+            Animal.objects.get(id=int(pk)).animalTypes.add(AnimalType.objects.get(id=int(typeId)))
+            queryset = super(AnimalViewSet, self).get_queryset().get(id=pk)
+            serializer = AnimalSerializer(queryset)
+            return JsonResponse(serializer.data, safe=False, status=201)
+
+    @action(methods=['put'], detail=True, url_path='types')
+    def update_types(self, request, pk):
+        oldtypeid = request.data.get('oldTypeId')
+        newtypeid = request.data.get('newTypeId')
+        if pk is None or oldtypeid is None or newtypeid is None or int(pk) <= 0 or int(oldtypeid) <= 0 or int(
+                newtypeid) <= 0:
+            return HttpResponse(status=400)
+        if {'id': int(pk)} not in Animal.objects.values('id'):
+            return HttpResponse(status=404)
+        if {'id': int(oldtypeid)} not in AnimalType.objects.values('id') or {'id': int(newtypeid)} not in AnimalType.\
+                objects.values('id'):
+            return HttpResponse(status=404)
+        if {'id': int(oldtypeid)} not in Animal.objects.get(id=int(pk)).animalTypes.values('id'):
+            return HttpResponse(status=404)
+        if {'id': int(newtypeid)} in Animal.objects.get(id=int(pk)).animalTypes.values('id'):
+            return HttpResponse(status=409)
+        removeAnimalType = Animal.objects.get(id=int(pk)).animalTypes.get(id=int(oldtypeid))
+        Animal.objects.get(id=int(pk)).animalTypes.remove(removeAnimalType)
+        Animal.objects.get(id=int(pk)).animalTypes.add(AnimalType.objects.get(id=int(newtypeid)))
+        queryset = super(AnimalViewSet, self).get_queryset().get(id=pk)
+        serializer = AnimalSerializer(queryset)
+        return JsonResponse(serializer.data, safe=False, status=200)
