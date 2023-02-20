@@ -52,13 +52,13 @@ class AccountViewSet(viewsets.ModelViewSet):
             if from_ < 0 or size <= 0:
                 return HttpResponse(status=400)
             query = Account.objects.all()
-            list = []
+            result = []
             for acc in query:
                 if firstname is None or firstname.lower() in acc.firstName.lower():
                     if lastname is None or lastname.lower() in acc.lastname.lower():
                         if email is None or email.lower() in acc.email.lower():
-                            list.append(to_dict(acc))
-            return JsonResponse(list[from_:size], safe=False)
+                            result.append(to_dict(acc))
+            return JsonResponse(result[from_:size], safe=False)
         if pk is None or int(pk) <= 0:
             return HttpResponse(status=400)
         return super(AccountViewSet, self).retrieve(request, pk=None)
@@ -230,7 +230,7 @@ class AnimalViewSet(viewsets.ModelViewSet):
                     chippinglocationid is not None and chippinglocationid <= 0):
                 return HttpResponse(status=400)
             query = Animal.objects.all()
-            list = []
+            result = []
             for animal in query:
                 if startdatetime is None or startdatetime.timestamp() <= animal.chippingDateTime.timestamp():
                     if enddatetime is None or enddatetime.timestamp() >= animal.chippingDateTime.timestamp():
@@ -238,9 +238,9 @@ class AnimalViewSet(viewsets.ModelViewSet):
                             if chippinglocationid is None or chippinglocationid == animal.chippingLocationId.id:
                                 if gender is None or gender == animal.gender:
                                     if lifestatus is None or lifestatus == animal.lifeStatus:
-                                        list.append(to_dict(animal))
+                                        result.append(to_dict(animal))
 
-            return JsonResponse(list[from_:size], safe=False)
+            return JsonResponse(result[from_:size], safe=False)
         if pk is None or int(pk) <= 0:
             return HttpResponse(status=400)
         return super(AnimalViewSet, self).retrieve(request, pk=None)
@@ -302,13 +302,14 @@ class AnimalViewSet(viewsets.ModelViewSet):
 
     @action(methods=['delete', 'post'], detail=True, url_path='types/(?P<typeId>[^/.]+)')
     def type_post_delete(self, request, pk, typeId):
+        if pk is None or typeId is None or int(pk) <= 0 or int(typeId) <= 0:
+            return HttpResponse(status=400)
+        if {"id": int(pk)} not in Animal.objects.values('id') or {
+            "id": int(typeId)} not in AnimalType.objects.values(
+            'id'):
+            return HttpResponse(status=404)
+
         if request.method == 'DELETE':
-            if pk is None or typeId is None or int(pk) <= 0 or int(typeId) <= 0:
-                return HttpResponse(status=400)
-            if {"id": int(pk)} not in Animal.objects.values('id') or {
-                "id": int(typeId)} not in AnimalType.objects.values(
-                    'id'):
-                return HttpResponse(status=404)
             if {'id': int(typeId)} not in Animal.objects.get(id=int(pk)).animalTypes.values('id'):
                 return HttpResponse(status=404)
             if len(Animal.objects.get(id=int(pk)).animalTypes.values('id')) == 1 and \
@@ -321,12 +322,6 @@ class AnimalViewSet(viewsets.ModelViewSet):
             return JsonResponse(serializer.data, safe=False)
 
         elif request.method == 'POST':
-            if pk is None or typeId is None or int(pk) <= 0 or int(typeId) <= 0:
-                return HttpResponse(status=400)
-            if {"id": int(pk)} not in Animal.objects.values('id') or {
-                "id": int(typeId)} not in AnimalType.objects.values(
-                'id'):
-                return HttpResponse(status=404)
             if {'id': int(typeId)} not in AnimalType.objects.values('id'):
                 return HttpResponse(status=404)
             if {'id': int(typeId)} in Animal.objects.get(id=int(pk)).animalTypes.values('id'):
@@ -345,7 +340,7 @@ class AnimalViewSet(viewsets.ModelViewSet):
             return HttpResponse(status=400)
         if {'id': int(pk)} not in Animal.objects.values('id'):
             return HttpResponse(status=404)
-        if {'id': int(oldtypeid)} not in AnimalType.objects.values('id') or {'id': int(newtypeid)} not in AnimalType.\
+        if {'id': int(oldtypeid)} not in AnimalType.objects.values('id') or {'id': int(newtypeid)} not in AnimalType. \
                 objects.values('id'):
             return HttpResponse(status=404)
         if {'id': int(oldtypeid)} not in Animal.objects.get(id=int(pk)).animalTypes.values('id'):
@@ -358,3 +353,89 @@ class AnimalViewSet(viewsets.ModelViewSet):
         queryset = super(AnimalViewSet, self).get_queryset().get(id=pk)
         serializer = AnimalSerializer(queryset)
         return JsonResponse(serializer.data, safe=False, status=200)
+
+    @action(methods=['get', 'put'], detail=True, url_path='locations')
+    def get_edit_locations(self, request, pk):
+        if request.method == 'GET':
+            if self.request.query_params.get('startDateTime') is None:
+                startdatetime = None
+            else:
+                try:
+                    startdatetime = datetime.fromisoformat(self.request.query_params.get('startDateTime'))
+                except:
+                    return HttpResponse(status=400)
+            if self.request.query_params.get('endDateTime') is None:
+                enddatetime = None
+            else:
+                try:
+                    enddatetime = datetime.fromisoformat(self.request.query_params.get('endDateTime'))
+                except:
+                    return HttpResponse(status=400)
+            if self.request.query_params.get('from') is None:
+                from_ = 0
+            else:
+                try:
+                    from_ = int(self.request.query_params.get('from'))
+                except:
+                    return HttpResponse(status=400)
+            if self.request.query_params.get('size') is None:
+                size = 10
+            else:
+                try:
+                    size = int(self.request.query_params.get('size'))
+                except:
+                    return HttpResponse(status=400)
+            if pk is None:
+                return HttpResponse(status=400)
+            else:
+                try:
+                    animalId = int(pk)
+                except:
+                    return HttpResponse(status=404)
+            if from_ < 0 or size <= 0 or animalId <= 0:
+                return HttpResponse(status=400)
+            if {'id': animalId} not in Animal.objects.values('id'):
+                return HttpResponse(status=404)
+            query = Animal.objects.get(id=animalId).visitedLocations.all()
+            result = []
+            for location in query:
+                if startdatetime is None or startdatetime.timestamp() <= location.dateTimeOfVisitLocationPoint.timestamp():
+                    if enddatetime is None or enddatetime.timestamp() >= location.dateTimeOfVisitLocationPoint.timestamp():
+                        result.append(to_dict(location))
+            return JsonResponse(result[from_:size], safe=False)
+
+    @action(methods=['post', 'delete'], detail=True, url_path='locations/(?P<pointId>[^/.]+)')
+    def add_delete_locations(self, request, pk, pointId):
+        if pk is None:
+            return HttpResponse(status=400)
+        else:
+            try:
+                animalId = int(pk)
+            except:
+                return HttpResponse(status=404)
+        if pointId is None:
+            return HttpResponse(status=400)
+        else:
+            try:
+                point = int(pointId)
+            except:
+                return HttpResponse(status=404)
+        if animalId <= 0 or point <= 0:
+            return HttpResponse(status=400)
+        if {'id': animalId} not in Animal.objects.values('id') \
+                or {'id': point} not in Location.objects.values('id'):
+            return HttpResponse(status=404)
+        if request.method == 'POST':
+            if Animal.objects.get(id=animalId).lifeStatus == 'DEAD':
+                return HttpResponse(status=400)
+            if len(Animal.objects.get(id=animalId).visitedLocations.values()) == 0 and \
+                    Animal.objects.get(id=animalId).chippingLocationId.id == point:
+                return HttpResponse(status=400)
+            print(Animal.objects.get(id=animalId).visitedLocations.values('locationPointId_id').last())
+            if {'locationPointId_id': point} == \
+                    Animal.objects.get(id=animalId).visitedLocations.values('locationPointId_id').last():
+                return HttpResponse(status=400)
+            animalloc = AnimalLocation.objects.create(dateTimeOfVisitLocationPoint=datetime.now(),
+                                                      locationPointId=Location.objects.get(id=point))
+            Animal.objects.get(id=animalId).visitedLocations.add(animalloc)
+            return JsonResponse(to_dict(animalloc), safe=False, status=201)
