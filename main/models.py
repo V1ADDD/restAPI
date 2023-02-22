@@ -46,14 +46,14 @@ class AnimalLocation(models.Model):
     locationPointId = models.ForeignKey(Location, on_delete=models.PROTECT)
 
     def __str__(self):
-        return str(self.locationPointId.id)
+        return str(self.id)+". "+str(self.locationPointId.id)
 
     class Meta:
         ordering = ['dateTimeOfVisitLocationPoint']
 
 
 class Animal(models.Model):
-    animalTypes = models.ManyToManyField(AnimalType)
+    animalTypes = models.ManyToManyField(AnimalType, blank=False)
     weight = models.FloatField()
     length = models.FloatField()
     height = models.FloatField()
