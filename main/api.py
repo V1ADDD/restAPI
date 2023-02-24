@@ -1,11 +1,12 @@
+import json
 from datetime import datetime
 from itertools import chain
-
+from .api_authenticate import Auth, NotAuth
+import re
 from django.db.models import ProtectedError
-from django.http import HttpResponse
 from django.http import JsonResponse
-from rest_framework import viewsets, permissions, mixins
-from rest_framework.decorators import action
+from rest_framework import viewsets, permissions
+from rest_framework.decorators import action, api_view, authentication_classes
 
 from .models import Account, Location, AnimalType, AnimalLocation, Animal
 from .serializers import AccountSerializer, LocationSerializer, AnimalTypeSerializer, AnimalLocationSerializer, \
@@ -55,7 +56,51 @@ def to_dict(instance):
     return data
 
 
+@api_view(['POST'])
+@authentication_classes([NotAuth])
+def RegistrationView(request):
+    data = json.loads(request.body)
+    try:
+        firstName = data['firstName']
+        lastName = data['lastName']
+        email = data['email']
+        password = data['password']
+    except KeyError:
+
+        # check if wasn't in a request
+        return JsonResponse("ERROR 400", safe=False, status=400)
+    try:
+
+        # email validation
+        regex = re.compile(r'([A-Za-z0-9]+[._-])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+        if not re.fullmatch(regex, email):
+            return JsonResponse("ERROR 400", safe=False, status=400)
+
+        # validation
+        if len(firstName.rstrip('\n\t ')) == 0 or len(lastName.rstrip('\n\t ')) == 0 or len(password.rstrip('\n\t ')) == 0:
+            return JsonResponse("ERROR 400", safe=False, status=400)
+    except TypeError:
+
+        # none
+        return JsonResponse("ERROR 400", safe=False, status=400)
+    except AttributeError:
+
+        # none
+        return JsonResponse("ERROR 400", safe=False, status=400)
+
+    # email already exists
+    if {'email': email} in Account.objects.values('email'):
+        return JsonResponse("ERROR 409", safe=False, status=409)
+
+    # Регистрация нового аккаунта
+    newAccount = Account(firstName=firstName, lastName=lastName, email=email, password=password)
+    newAccount.save()
+    serializer = AccountSerializer(newAccount)
+    return JsonResponse(serializer.data, safe=False, status=201)
+
+
 class AccountViewSet(viewsets.ModelViewSet):
+    authentication_classes = (Auth,)
     queryset = Account.objects.all()
     permission_classes = [
         permissions.AllowAny
@@ -90,7 +135,7 @@ class AccountViewSet(viewsets.ModelViewSet):
             result = []
             for acc in query:
                 if firstname is None or firstname.lower() in acc.firstName.lower():
-                    if lastname is None or lastname.lower() in acc.lastname.lower():
+                    if lastname is None or lastname.lower() in acc.lastName.lower():
                         if email is None or email.lower() in acc.email.lower():
                             result.append(to_dict(acc))
             return JsonResponse(result[from_:size], safe=False)
@@ -109,16 +154,53 @@ class AccountViewSet(viewsets.ModelViewSet):
         if type(data_check) != list:
             return data_check
 
+        # not your account
+        if request.user.id != int(pk):
+            return JsonResponse("ERROR 403", safe=False, status=403)
+
         query = Account.objects.all()
 
         # Аккаунт не найден
         if {'id': int(pk)} not in query.values('id'):
             return JsonResponse("ERROR 403", safe=False, status=403)
 
+        # validation
+        data = json.loads(request.body)
+        try:
+            firstName = data['firstName']
+            lastName = data['lastName']
+            email = data['email']
+            password = data['password']
+        except KeyError:
+
+            # check if wasn't in a request
+            return JsonResponse("ERROR 400", safe=False, status=400)
+        try:
+
+            # email validation
+            regex = re.compile(r'([A-Za-z0-9]+[._-])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+            if not re.fullmatch(regex, email):
+                return JsonResponse("ERROR 400", safe=False, status=400)
+
+            # validation
+            if len(firstName.rstrip('\n\t ')) == 0 or len(lastName.rstrip('\n\t ')) == 0 or len(
+                    password.rstrip('\n\t ')) == 0:
+                return JsonResponse("ERROR 400", safe=False, status=400)
+        except TypeError:
+
+            # none
+            return JsonResponse("ERROR 400", safe=False, status=400)
+        except AttributeError:
+
+            # none
+            return JsonResponse("ERROR 400", safe=False, status=400)
+
         # Аккаунт с таким email уже существует
         for acc in query:
             if acc.email == Account.objects.get(id=pk).email and acc.id != pk:
                 return JsonResponse("ERROR 409", safe=False, status=409)
+
+
 
         # Обновление данных аккаунта пользователя
         return super(AccountViewSet, self).update(request, pk=None)
@@ -128,6 +210,10 @@ class AccountViewSet(viewsets.ModelViewSet):
         data_check = check_error_400_404(pk)
         if type(data_check) != list:
             return data_check
+
+        # not your account
+        if request.user.id != int(pk):
+            return JsonResponse("ERROR 403", safe=False, status=403)
 
         # Аккаунт с таким accountId не найден
         if {'id': int(pk)} not in Account.objects.values('id'):
@@ -143,6 +229,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 
 
 class LocationViewSet(viewsets.ModelViewSet):
+    authentication_classes = (Auth,)
     queryset = Location.objects.all()
     permission_classes = [
         permissions.AllowAny
@@ -221,6 +308,7 @@ class LocationViewSet(viewsets.ModelViewSet):
 
 
 class AnimalTypeViewSet(viewsets.ModelViewSet):
+    authentication_classes = (Auth,)
     queryset = AnimalType.objects.all()
     permission_classes = [
         permissions.AllowAny
@@ -280,6 +368,7 @@ class AnimalTypeViewSet(viewsets.ModelViewSet):
 
 
 class AnimalViewSet(viewsets.ModelViewSet):
+    authentication_classes = (Auth,)
     queryset = Animal.objects.all()
     permission_classes = [
         permissions.AllowAny
@@ -311,7 +400,7 @@ class AnimalViewSet(viewsets.ModelViewSet):
             if type(data_check) == list:
                 chipperid, chippinglocationid = data_check
             else:
-                return data_check
+                chipperid, chippinglocationid = None, None
 
             # lifestatus, gender validation
             lifestatus = self.request.query_params.get('lifeStatus')

@@ -2,11 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="213599fe-49b1-4fe7-b771-a3ddff0c9c62" name="Changes" comment="models">
-      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main/api_authenticate.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/restAPI/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/restAPI/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,6 +47,14 @@
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\rusak\OneDrive\Pulpit\portfolio\restAPI" />
+      <recent name="C:\Users\rusak\OneDrive\Pulpit\portfolio\restAPI\docker" />
+      <recent name="C:\Users\rusak\OneDrive\Pulpit\portfolio\restAPI\docker\app" />
+      <recent name="C:\Users\rusak\OneDrive\Pulpit\portfolio\restAPI\docke" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="restAPI" type="Python.DjangoServer" factoryName="Django server">
       <module name="restAPI" />
@@ -79,6 +91,7 @@
       <workItem from="1676487772044" duration="3373000" />
       <workItem from="1676634574205" duration="67982000" />
       <workItem from="1677009037430" duration="13785000" />
+      <workItem from="1677073530229" duration="30361000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <created>1676488071784</created>
