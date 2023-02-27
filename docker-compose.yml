@@ -2,15 +2,25 @@ version: '3.9'
 
 services:
   database:
-    image: nouchka/sqlite3:latest
+    image: postgres:14
+    restart: always
     volumes:
-      - ./:/root/db
+      - ./dump:/var/lib/postgresql/data
+#      - ./:/root/db
     environment:
-      - SQLITE3_DB=db.sqlite3
+      - POSTGRES_DB=animals
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345
+    ports:
+      - "0.0.0.0:5432:8080"
 
   webapi:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8080
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: on-failure
+    command: >
+      bash -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8080"
     volumes:
       - .:/code
     ports:

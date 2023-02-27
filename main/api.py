@@ -77,7 +77,8 @@ def RegistrationView(request):
             return JsonResponse("ERROR 400", safe=False, status=400)
 
         # validation
-        if len(firstName.rstrip('\n\t ')) == 0 or len(lastName.rstrip('\n\t ')) == 0 or len(password.rstrip('\n\t ')) == 0:
+        if len(firstName.rstrip('\n\t ')) == 0 or len(lastName.rstrip('\n\t ')) == 0 or len(
+                password.rstrip('\n\t ')) == 0:
             return JsonResponse("ERROR 400", safe=False, status=400)
     except TypeError:
 
@@ -197,10 +198,8 @@ class AccountViewSet(viewsets.ModelViewSet):
 
         # Аккаунт с таким email уже существует
         for acc in query:
-            if acc.email == Account.objects.get(id=pk).email and acc.id != pk:
+            if acc.email == Account.objects.get(id=pk).email and acc.id != int(pk):
                 return JsonResponse("ERROR 409", safe=False, status=409)
-
-
 
         # Обновление данных аккаунта пользователя
         return super(AccountViewSet, self).update(request, pk=None)
