@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 from itertools import chain
-from .api_authenticate import Auth, NotAuth
+from .api_authenticate import AuthAccount, NotAuth, Auth
 import re
 from django.db.models import ProtectedError
 from django.http import JsonResponse
@@ -9,8 +9,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.decorators import action, api_view, authentication_classes
 
 from .models import Account, Location, AnimalType, AnimalLocation, Animal
-from .serializers import AccountSerializer, LocationSerializer, AnimalTypeSerializer, AnimalLocationSerializer, \
-    AnimalSerializer
+from .serializers import AccountSerializer, LocationSerializer, AnimalTypeSerializer, AnimalSerializer
 
 
 def check_error_400_404(*args):
@@ -50,7 +49,12 @@ def to_dict(instance):
     data = {}
     for f in chain(opts.concrete_fields, opts.private_fields):
         if f.name != 'password':
-            data[f.name] = f.value_from_object(instance)
+            if type(f.value_from_object(instance)) == datetime:
+                data[f.name] = str(f.value_from_object(instance))+"Z"
+                data[f.name] = data[f.name].replace("+00:00", "")
+                data[f.name] = data[f.name].replace(" ", "T")
+            else:
+                data[f.name] = f.value_from_object(instance)
     for f in opts.many_to_many:
         data[f.name] = [i.id for i in f.value_from_object(instance)]
     return data
@@ -101,7 +105,7 @@ def RegistrationView(request):
 
 
 class AccountViewSet(viewsets.ModelViewSet):
-    authentication_classes = (Auth,)
+    authentication_classes = (AuthAccount,)
     queryset = Account.objects.all()
     permission_classes = [
         permissions.AllowAny
@@ -139,7 +143,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                     if lastname is None or lastname.lower() in acc.lastName.lower():
                         if email is None or email.lower() in acc.email.lower():
                             result.append(to_dict(acc))
-            return JsonResponse(result[from_:size], safe=False)
+            return JsonResponse(result[from_:from_+size], safe=False)
 
         # validating pk
         data_check = check_error_400_404(pk)
@@ -394,13 +398,16 @@ class AnimalViewSet(viewsets.ModelViewSet):
                     return JsonResponse("ERROR 400", safe=False, status=400)
 
             # chipperId, chippingLocationId validation
-            data_check = check_error_400_404(self.request.query_params.get('chipperId'),
-                                             self.request.query_params.get('chippingLocationId'))
-            if type(data_check) == list:
-                chipperid, chippinglocationid = data_check
+            data_check1 = check_error_400_404(self.request.query_params.get('chipperId'))
+            if type(data_check1) == list:
+                chipperid = data_check1[0]
             else:
-                chipperid, chippinglocationid = None, None
-
+                chipperid = None
+            data_check2 = check_error_400_404(self.request.query_params.get('chippingLocationId'))
+            if type(data_check2) == list:
+                chippinglocationid = data_check2[0]
+            else:
+                chippinglocationid = None
             # lifestatus, gender validation
             lifestatus = self.request.query_params.get('lifeStatus')
             gender = self.request.query_params.get('gender')
@@ -437,8 +444,7 @@ class AnimalViewSet(viewsets.ModelViewSet):
                                 if gender is None or gender == animal.gender:
                                     if lifestatus is None or lifestatus == animal.lifeStatus:
                                         result.append(to_dict(animal))
-            return JsonResponse(result[from_:size], safe=False)
-
+            return JsonResponse(result[from_:from_ + size], safe=False)
         # validating pk
         data_check = check_error_400_404(pk)
         if type(data_check) != list:
@@ -500,7 +506,8 @@ class AnimalViewSet(viewsets.ModelViewSet):
         if request.data.get('lifeStatus'):
             if request.data.get('lifeStatus') == 'ALIVE' and Animal.objects.get(id=pk).lifeStatus == 'DEAD':
                 return JsonResponse("ERROR 400", safe=False, status=400)
-            if chippinglocationid == Animal.objects.get(id=pk).visitedLocations.values()[0]['locationPointId_id']:
+            if len(Animal.objects.get(id=pk).visitedLocations.values()) != 0 and\
+                chippinglocationid == Animal.objects.get(id=pk).visitedLocations.values()[0]['locationPointId_id']:
                 return JsonResponse("ERROR 400", safe=False, status=400)
             if {'id': chipperid} not in Account.objects.values('id'):
                 return JsonResponse("ERROR 404", safe=False, status=404)
