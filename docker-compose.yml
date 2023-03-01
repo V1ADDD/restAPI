@@ -10,8 +10,6 @@ services:
       - POSTGRES_DB=animal-chipization
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-#    ports:
-#      - "0.0.0.0:5432:8080"
 
   webapi:
     build:
@@ -19,7 +17,7 @@ services:
       dockerfile: Dockerfile
     restart: on-failure
     command: >
-      bash -c "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8080"
+      bash -c "python manage.py migrate --noinput && python manage.py flush --noinput && python manage.py runserver 0.0.0.0:8080"
     volumes:
       - .:/code
     ports:

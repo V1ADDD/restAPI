@@ -16,14 +16,14 @@ def check_error_400_404(*args):
     result = []
     for arg in args:
         if arg is None:
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
         try:
             arg_ = int(arg)
             if arg_ <= 0:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             result.append(arg_)
         except:
-            return JsonResponse("ERROR 400", safe=False, status=404)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=404)
     return result
 
 
@@ -72,30 +72,30 @@ def RegistrationView(request):
     except KeyError:
 
         # check if wasn't in a request
-        return JsonResponse("ERROR 400", safe=False, status=400)
+        return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
     try:
 
         # email validation
         regex = re.compile(r'([A-Za-z0-9]+[._-])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
         if not re.fullmatch(regex, email):
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
         # validation
         if len(firstName.rstrip('\n\t ')) == 0 or len(lastName.rstrip('\n\t ')) == 0 or len(
                 password.rstrip('\n\t ')) == 0:
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
     except TypeError:
 
         # none
-        return JsonResponse("ERROR 400", safe=False, status=400)
+        return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
     except AttributeError:
 
         # none
-        return JsonResponse("ERROR 400", safe=False, status=400)
+        return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
     # email already exists
     if {'email': email} in Account.objects.values('email'):
-        return JsonResponse("ERROR 409", safe=False, status=409)
+        return JsonResponse({"Error": "ERROR 409"}, safe=False, status=409)
 
     # Регистрация нового аккаунта
     newAccount = Account(firstName=firstName, lastName=lastName, email=email, password=password)
@@ -125,16 +125,16 @@ class AccountViewSet(viewsets.ModelViewSet):
                 try:
                     from_ = int(self.request.query_params.get('from'))
                 except:
-                    return JsonResponse("ERROR 400", safe=False, status=400)
+                    return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             if self.request.query_params.get('size') is None:
                 size = 10
             else:
                 try:
                     size = int(self.request.query_params.get('size'))
                 except:
-                    return JsonResponse("ERROR 400", safe=False, status=400)
+                    return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             if from_ < 0 or size <= 0:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             query = Account.objects.all()
             result = []
@@ -161,13 +161,13 @@ class AccountViewSet(viewsets.ModelViewSet):
 
         # not your account
         if request.user.id != int(pk):
-            return JsonResponse("ERROR 403", safe=False, status=403)
+            return JsonResponse({"Error": "ERROR 403"}, safe=False, status=403)
 
         query = Account.objects.all()
 
         # Аккаунт не найден
         if {'id': int(pk)} not in query.values('id'):
-            return JsonResponse("ERROR 403", safe=False, status=403)
+            return JsonResponse({"Error": "ERROR 403"}, safe=False, status=403)
 
         # validation
         data = json.loads(request.body)
@@ -179,31 +179,31 @@ class AccountViewSet(viewsets.ModelViewSet):
         except KeyError:
 
             # check if wasn't in a request
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
         try:
 
             # email validation
             regex = re.compile(r'([A-Za-z0-9]+[._-])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
             if not re.fullmatch(regex, email):
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             # validation
             if len(firstName.rstrip('\n\t ')) == 0 or len(lastName.rstrip('\n\t ')) == 0 or len(
                     password.rstrip('\n\t ')) == 0:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
         except TypeError:
 
             # none
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
         except AttributeError:
 
             # none
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
         # Аккаунт с таким email уже существует
         for acc in query:
             if acc.email == Account.objects.get(id=pk).email and acc.id != int(pk):
-                return JsonResponse("ERROR 409", safe=False, status=409)
+                return JsonResponse({"Error": "ERROR 409"}, safe=False, status=409)
 
         # Обновление данных аккаунта пользователя
         return super(AccountViewSet, self).update(request, pk=None)
@@ -216,11 +216,11 @@ class AccountViewSet(viewsets.ModelViewSet):
 
         # not your account
         if request.user.id != int(pk):
-            return JsonResponse("ERROR 403", safe=False, status=403)
+            return JsonResponse({"Error": "ERROR 403"}, safe=False, status=403)
 
         # Аккаунт с таким accountId не найден
         if {'id': int(pk)} not in Account.objects.values('id'):
-            return JsonResponse("ERROR 403", safe=False, status=403)
+            return JsonResponse({"Error": "ERROR 403"}, safe=False, status=403)
 
         # Удаление аккаунта пользователя
         try:
@@ -228,7 +228,7 @@ class AccountViewSet(viewsets.ModelViewSet):
             return JsonResponse({}, status=200)
         except ProtectedError:
             # Аккаунт связан с животным
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
 
 class LocationViewSet(viewsets.ModelViewSet):
@@ -254,14 +254,14 @@ class LocationViewSet(viewsets.ModelViewSet):
             latitude = float(request.data.get('latitude'))
             longitude = float(request.data.get('longitude'))
         except:
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
         if latitude < -90 or latitude > 90 or longitude < -180 or longitude > 180:
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
         # Точка локации с такими latitude и longitude уже существует
         for loc in Location.objects.all():
             if loc.latitude == latitude and loc.longitude == longitude:
-                return JsonResponse("ERROR 409", safe=False, status=409)
+                return JsonResponse({"Error": "ERROR 409"}, safe=False, status=409)
 
         # Добавление точки локации животных
         return super(LocationViewSet, self).create(request)
@@ -272,9 +272,9 @@ class LocationViewSet(viewsets.ModelViewSet):
             latitude = float(request.data.get('latitude'))
             longitude = float(request.data.get('longitude'))
         except:
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
         if latitude < -90 or latitude > 90 or longitude < -180 or longitude > 180:
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
         # validating pk
         data_check = check_error_400_404(pk)
@@ -284,7 +284,7 @@ class LocationViewSet(viewsets.ModelViewSet):
         # Точка локации с такими latitude и longitude уже существует
         for loc in Location.objects.all():
             if loc.latitude == latitude and loc.longitude == longitude:
-                return JsonResponse("ERROR 409", safe=False, status=409)
+                return JsonResponse({"Error": "ERROR 409"}, safe=False, status=409)
 
         # Изменение точки локации животных
         return super(LocationViewSet, self).update(request, pk=None)
@@ -299,7 +299,7 @@ class LocationViewSet(viewsets.ModelViewSet):
 
         # Точка локации с таким pointId не найдена
         if {'id': pk} not in Location.objects.values('id'):
-            return JsonResponse("ERROR 404", safe=False, status=404)
+            return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
         # Удаление точки локации животных
         try:
@@ -307,7 +307,7 @@ class LocationViewSet(viewsets.ModelViewSet):
             return JsonResponse({}, status=200)
         except ProtectedError:
             # Точка локации связана с животным
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
 
 class AnimalTypeViewSet(viewsets.ModelViewSet):
@@ -321,7 +321,7 @@ class AnimalTypeViewSet(viewsets.ModelViewSet):
     def create(self, request):
         # Тип животного с таким type уже существует
         if {'type': request.data.get('type')} in AnimalType.objects.values('type'):
-            return JsonResponse("ERROR 409", safe=False, status=409)
+            return JsonResponse({"Error": "ERROR 409"}, safe=False, status=409)
 
         # Добавление типа животного
         return super(AnimalTypeViewSet, self).create(request)
@@ -343,7 +343,7 @@ class AnimalTypeViewSet(viewsets.ModelViewSet):
 
         # Тип животного с таким type уже существует
         if {'type': request.data.get('type')} in AnimalType.objects.values('type'):
-            return JsonResponse("ERROR 409", safe=False, status=409)
+            return JsonResponse({"Error": "ERROR 409"}, safe=False, status=409)
 
         # Изменение типа животного
         return super(AnimalTypeViewSet, self).update(request, pk=None)
@@ -358,12 +358,12 @@ class AnimalTypeViewSet(viewsets.ModelViewSet):
 
         # Тип животного с таким typeId не найден
         if {'id': pk} not in AnimalType.objects.values('id'):
-            return JsonResponse("ERROR 404", safe=False, status=404)
+            return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
         # Есть животные с типом с typeId
         for animal in Animal.objects.all():
             if {'id': pk} in animal.animalTypes.values('id'):
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
         # Удаление типа животного
         AnimalType.objects.get(id=pk).delete()
@@ -389,7 +389,7 @@ class AnimalViewSet(viewsets.ModelViewSet):
                     startdatetime = datetime.fromisoformat(
                         self.request.query_params.get('startDateTime')[:-1])
                 except:
-                    return JsonResponse("ERROR 400", safe=False, status=400)
+                    return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             if self.request.query_params.get('endDateTime') is None:
                 enddatetime = None
             else:
@@ -397,7 +397,7 @@ class AnimalViewSet(viewsets.ModelViewSet):
                     enddatetime = datetime.fromisoformat(
                         self.request.query_params.get('endDateTime')[:-1])
                 except:
-                    return JsonResponse("ERROR 400_", safe=False, status=400)
+                    return JsonResponse({"Error": "ERROR 400_"}, safe=False, status=400)
 
             # chipperId, chippingLocationId validation
             data_check1 = check_error_400_404(self.request.query_params.get('chipperId'))
@@ -414,9 +414,9 @@ class AnimalViewSet(viewsets.ModelViewSet):
             lifestatus = self.request.query_params.get('lifeStatus')
             gender = self.request.query_params.get('gender')
             if lifestatus != 'ALIVE' and lifestatus != 'DEAD' and lifestatus is not None:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             if gender != 'MALE' and gender != 'FEMALE' and gender != 'OTHER' and gender is not None:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             # from, size validation and default
             if self.request.query_params.get('from') is None:
@@ -425,16 +425,16 @@ class AnimalViewSet(viewsets.ModelViewSet):
                 try:
                     from_ = int(self.request.query_params.get('from'))
                 except:
-                    return JsonResponse("ERROR 400", safe=False, status=400)
+                    return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             if self.request.query_params.get('size') is None:
                 size = 10
             else:
                 try:
                     size = int(self.request.query_params.get('size'))
                 except:
-                    return JsonResponse("ERROR 400", safe=False, status=400)
+                    return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             if from_ < 0 or size <= 0:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             query = Animal.objects.all()
             result = []
@@ -464,25 +464,25 @@ class AnimalViewSet(viewsets.ModelViewSet):
             return data_check
         if {'id': chipperid} not in Account.objects.values('id') or {
             'id': chippinglocationid} not in Location.objects.values('id'):
-            return JsonResponse("ERROR 404", safe=False, status=404)
+            return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
         types = request.data.get('animalTypes')
 
         # weight, length, height validation
         if request.data.get('weight') is None or request.data.get('length') is None or request.data.get(
                 'height') is None:
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
         if request.data.get('weight') <= 0 or request.data.get('length') <= 0 or request.data.get('height') <= 0:
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
         # types validation
         if types is not None:
             if types != list(set(types)):
-                return JsonResponse("ERROR 409", safe=False, status=409)
+                return JsonResponse({"Error": "ERROR 409"}, safe=False, status=409)
             for animaltype in types:
                 if animaltype is not None:
                     if animaltype > 0 and {'id': animaltype} not in AnimalType.objects.values('id'):
-                        return JsonResponse("ERROR 404", safe=False, status=404)
+                        return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
         #  Добавление нового животного
         return super(AnimalViewSet, self).create(request)
@@ -495,26 +495,26 @@ class AnimalViewSet(viewsets.ModelViewSet):
         else:
             return data_check
         if {"id": pk} not in Animal.objects.values('id'):
-            return JsonResponse("ERROR 404", safe=False, status=404)
+            return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
         # weight, length, height validation
         if request.data.get('weight') is None or request.data.get('length') is None or request.data.get(
                 'height') is None:
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
         if request.data.get('weight') <= 0 or request.data.get('length') <= 0 or request.data.get('height') <= 0:
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
         # lifeStatus, location, chipper validations
         if request.data.get('lifeStatus'):
             if request.data.get('lifeStatus') == 'ALIVE' and Animal.objects.get(id=pk).lifeStatus == 'DEAD':
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             if len(Animal.objects.get(id=pk).visitedLocations.values()) != 0 and \
                     chippinglocationid == Animal.objects.get(id=pk).visitedLocations.values()[0]['locationPointId_id']:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             if {'id': chipperid} not in Account.objects.values('id'):
-                return JsonResponse("ERROR 404", safe=False, status=404)
+                return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
             if {'id': chippinglocationid} not in Location.objects.values('id'):
-                return JsonResponse("ERROR 404", safe=False, status=404)
+                return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
         request.data['animalTypes'] = list(Animal.objects.get(id=pk).animalTypes.all().values_list('id', flat=True))
         # Обновление информации о животном
         return super(AnimalViewSet, self).update(request, pk)
@@ -527,11 +527,11 @@ class AnimalViewSet(viewsets.ModelViewSet):
         else:
             return data_check
         if {"id": pk} not in Animal.objects.values('id'):
-            return JsonResponse("ERROR 404", safe=False, status=404)
+            return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
         # Животное покинуло локацию чипирования, при этом есть другие посещенные точки
         if len(Animal.objects.get(id=pk).visitedLocations.values()) > 0:
-            return JsonResponse("ERROR 400", safe=False, status=400)
+            return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
         # Удаление животного
         Animal.objects.get(id=pk).delete()
@@ -548,17 +548,17 @@ class AnimalViewSet(viewsets.ModelViewSet):
         if {"id": pk} not in Animal.objects.values('id') or {
             "id": typeId} not in AnimalType.objects.values(
             'id'):
-            return JsonResponse("ERROR 404", safe=False, status=404)
+            return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
         if request.method == 'DELETE':
             # У животного с animalId нет типа с typeId
             if {'id': int(typeId)} not in Animal.objects.get(id=pk).animalTypes.values('id'):
-                return JsonResponse("ERROR 404", safe=False, status=404)
+                return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
             # У животного только один тип и это тип с typeId
             if len(Animal.objects.get(id=pk).animalTypes.values('id')) == 1 and \
                     Animal.objects.get(id=pk).animalTypes.values('id')[0] == {'id': typeId}:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             # Удаление типа животного у животного
             removeAnimalType = Animal.objects.get(id=pk).animalTypes.get(id=typeId)
@@ -570,7 +570,7 @@ class AnimalViewSet(viewsets.ModelViewSet):
         elif request.method == 'POST':
             # Тип животного с typeId уже есть у животного с animalId
             if {'id': typeId} in Animal.objects.get(id=pk).animalTypes.values('id'):
-                return JsonResponse("ERROR 409", safe=False, status=409)
+                return JsonResponse({"Error": "ERROR 409"}, safe=False, status=409)
 
             # Добавление типа животного к животному
             Animal.objects.get(id=pk).animalTypes.add(AnimalType.objects.get(id=typeId))
@@ -587,14 +587,14 @@ class AnimalViewSet(viewsets.ModelViewSet):
         else:
             return data_check
         if {'id': pk} not in Animal.objects.values('id'):
-            return JsonResponse("ERROR 404", safe=False, status=404)
+            return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
         if {'id': oldtypeid} not in AnimalType.objects.values('id') or {'id': newtypeid} not in AnimalType. \
                 objects.values('id'):
-            return JsonResponse("ERROR 404", safe=False, status=404)
+            return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
         if {'id': oldtypeid} not in Animal.objects.get(id=pk).animalTypes.values('id'):
-            return JsonResponse("ERROR 404", safe=False, status=404)
+            return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
         if {'id': newtypeid} in Animal.objects.get(id=pk).animalTypes.values('id'):
-            return JsonResponse("ERROR 409", safe=False, status=409)
+            return JsonResponse({"Error": "ERROR 409"}, safe=False, status=409)
 
         # Изменение типа животного у животного
         removeAnimalType = Animal.objects.get(id=pk).animalTypes.get(id=oldtypeid)
@@ -614,7 +614,7 @@ class AnimalViewSet(viewsets.ModelViewSet):
         else:
             return data_check
         if {'id': animalId} not in Animal.objects.values('id'):
-            return JsonResponse("ERROR 404", safe=False, status=404)
+            return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
         if request.method == 'GET':
 
@@ -625,14 +625,14 @@ class AnimalViewSet(viewsets.ModelViewSet):
                 try:
                     startdatetime = datetime.fromisoformat(self.request.query_params.get('startDateTime')[:-1])
                 except:
-                    return JsonResponse("ERROR 400", safe=False, status=400)
+                    return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             if self.request.query_params.get('endDateTime') is None:
                 enddatetime = None
             else:
                 try:
                     enddatetime = datetime.fromisoformat(self.request.query_params.get('endDateTime')[:-1])
                 except:
-                    return JsonResponse("ERROR 400", safe=False, status=400)
+                    return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             # from and size validation and setting to default
             if self.request.query_params.get('from') is None:
@@ -641,16 +641,16 @@ class AnimalViewSet(viewsets.ModelViewSet):
                 try:
                     from_ = int(self.request.query_params.get('from'))
                 except:
-                    return JsonResponse("ERROR 400", safe=False, status=400)
+                    return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             if self.request.query_params.get('size') is None:
                 size = 10
             else:
                 try:
                     size = int(self.request.query_params.get('size'))
                 except:
-                    return JsonResponse("ERROR 400", safe=False, status=400)
+                    return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             if from_ < 0 or size <= 0:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             query = Animal.objects.get(id=animalId).visitedLocations.all()
 
@@ -674,27 +674,27 @@ class AnimalViewSet(viewsets.ModelViewSet):
 
             # Объект с информацией о посещенной точке локации с visitedLocationPointId не найден.
             if {'id': visitedLocationPointId} not in AnimalLocation.objects.values('id'):
-                return JsonResponse("ERROR 404", safe=False, status=404)
+                return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
             # Точка локации с locationPointId не найден
             if {'id': locationPointId} not in Location.objects.values('id'):
-                return JsonResponse("ERROR 404", safe=False, status=404)
+                return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
             animal = Animal.objects.get(id=animalId)
 
             # У животного нет объекта с информацией о посещенной точке локации с visitedLocationPointId
             if {'id': visitedLocationPointId} not in animal.visitedLocations.values('id'):
-                return JsonResponse("ERROR 404", safe=False, status=404)
+                return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
             # Обновление первой посещенной точки на точку чипирования
             if {'id': visitedLocationPointId} == \
                     animal.visitedLocations.values('id').first() \
                     and animal.chippingLocationId.id == locationPointId:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             # Обновление точки на такую же точку
             if AnimalLocation.objects.get(id=visitedLocationPointId).locationPointId.id == locationPointId:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             # Обновление точки локации на точку, совпадающую со следующей и/или с предыдущей точками
             if {'id': visitedLocationPointId} == animal.visitedLocations.values('id').first() and \
@@ -702,13 +702,13 @@ class AnimalViewSet(viewsets.ModelViewSet):
                 pass
             elif {'id': visitedLocationPointId} == animal.visitedLocations.values('id').first():
                 if find_next_prev(animal, visitedLocationPointId) == locationPointId:
-                    return JsonResponse("ERROR 400", safe=False, status=400)
+                    return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             elif {'id': visitedLocationPointId} == animal.visitedLocations.values('id').last():
                 if find_next_prev(animal, visitedLocationPointId, next=False) == locationPointId:
-                    return JsonResponse("ERROR 400", safe=False, status=400)
+                    return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
             elif find_next_prev(animal, visitedLocationPointId, next=False) == locationPointId or \
                     find_next_prev(animal, visitedLocationPointId) == locationPointId:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             # Изменение точки локации, посещенной животным
             animallocation = AnimalLocation.objects.get(id=visitedLocationPointId)
@@ -727,28 +727,28 @@ class AnimalViewSet(viewsets.ModelViewSet):
         else:
             return data_check
         if {'id': animalId} not in Animal.objects.values('id'):
-            return JsonResponse("ERROR 404", safe=False, status=404)
+            return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
         if request.method == 'POST':
 
             # Точка локации с pointId не найдена
             if {'id': point} not in Location.objects.values('id'):
-                return JsonResponse("ERROR 404", safe=False, status=404)
+                return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
             # У животного lifeStatus = "DEAD"
             if Animal.objects.get(id=animalId).lifeStatus == 'DEAD':
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             # Животное находится в точке чипирования и никуда не перемещалось,
             # попытка добавить точку локации, равную точке чипирования.
             if len(Animal.objects.get(id=animalId).visitedLocations.values()) == 0 and \
                     Animal.objects.get(id=animalId).chippingLocationId.id == point:
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             # Попытка добавить точку локации, в которой уже находится животное
             if {'locationPointId_id': point} == \
                     Animal.objects.get(id=animalId).visitedLocations.values('locationPointId_id').last():
-                return JsonResponse("ERROR 400", safe=False, status=400)
+                return JsonResponse({"Error": "ERROR 400"}, safe=False, status=400)
 
             # Добавление точки локации, посещенной животным
             animalloc = AnimalLocation.objects.create(dateTimeOfVisitLocationPoint=datetime.now(),
@@ -760,13 +760,13 @@ class AnimalViewSet(viewsets.ModelViewSet):
 
             # Объект с информацией о посещенной точке локации с visitedPointId не найден.
             if {'id': point} not in AnimalLocation.objects.values('id'):
-                return JsonResponse("ERROR 404", safe=False, status=404)
+                return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
             animal = Animal.objects.get(id=animalId)
 
             # У животного нет объекта с информацией о посещенной точке локации с visitedLocationPointId
             if {'id': point} not in animal.visitedLocations.values('id'):
-                return JsonResponse("ERROR 404", safe=False, status=404)
+                return JsonResponse({"Error": "ERROR 404"}, safe=False, status=404)
 
             # Удаление точки локации, посещенной животным
             AnimalLocation.objects.get(id=point).delete()
