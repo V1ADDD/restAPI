@@ -83,9 +83,9 @@ WSGI_APPLICATION = 'restAPI.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'animals',
-        'USER': 'postgres',
-        'PASSWORD': '12345',
+        'NAME': 'animal-chipization',
+        'USER': 'user',
+        'PASSWORD': 'password',
         'HOST': 'database',
         'PORT': '5432',
     }

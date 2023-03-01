@@ -50,7 +50,7 @@ def to_dict(instance):
     for f in chain(opts.concrete_fields, opts.private_fields):
         if f.name != 'password':
             if type(f.value_from_object(instance)) == datetime:
-                data[f.name] = str(f.value_from_object(instance))+"Z"
+                data[f.name] = str(f.value_from_object(instance)) + "Z"
                 data[f.name] = data[f.name].replace("+00:00", "")
                 data[f.name] = data[f.name].replace(" ", "T")
             else:
@@ -143,7 +143,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                     if lastname is None or lastname.lower() in acc.lastName.lower():
                         if email is None or email.lower() in acc.email.lower():
                             result.append(to_dict(acc))
-            return JsonResponse(result[from_:from_+size], safe=False)
+            return JsonResponse(result[from_:from_ + size], safe=False)
 
         # validating pk
         data_check = check_error_400_404(pk)
@@ -386,16 +386,18 @@ class AnimalViewSet(viewsets.ModelViewSet):
                 startdatetime = None
             else:
                 try:
-                    startdatetime = datetime.fromisoformat(self.request.query_params.get('startDateTime'))
+                    startdatetime = datetime.fromisoformat(
+                        self.request.query_params.get('startDateTime')[:-1])
                 except:
                     return JsonResponse("ERROR 400", safe=False, status=400)
             if self.request.query_params.get('endDateTime') is None:
                 enddatetime = None
             else:
                 try:
-                    enddatetime = datetime.fromisoformat(self.request.query_params.get('endDateTime'))
+                    enddatetime = datetime.fromisoformat(
+                        self.request.query_params.get('endDateTime')[:-1])
                 except:
-                    return JsonResponse("ERROR 400", safe=False, status=400)
+                    return JsonResponse("ERROR 400_", safe=False, status=400)
 
             # chipperId, chippingLocationId validation
             data_check1 = check_error_400_404(self.request.query_params.get('chipperId'))
@@ -506,14 +508,14 @@ class AnimalViewSet(viewsets.ModelViewSet):
         if request.data.get('lifeStatus'):
             if request.data.get('lifeStatus') == 'ALIVE' and Animal.objects.get(id=pk).lifeStatus == 'DEAD':
                 return JsonResponse("ERROR 400", safe=False, status=400)
-            if len(Animal.objects.get(id=pk).visitedLocations.values()) != 0 and\
-                chippinglocationid == Animal.objects.get(id=pk).visitedLocations.values()[0]['locationPointId_id']:
+            if len(Animal.objects.get(id=pk).visitedLocations.values()) != 0 and \
+                    chippinglocationid == Animal.objects.get(id=pk).visitedLocations.values()[0]['locationPointId_id']:
                 return JsonResponse("ERROR 400", safe=False, status=400)
             if {'id': chipperid} not in Account.objects.values('id'):
                 return JsonResponse("ERROR 404", safe=False, status=404)
             if {'id': chippinglocationid} not in Location.objects.values('id'):
                 return JsonResponse("ERROR 404", safe=False, status=404)
-
+        request.data['animalTypes'] = list(Animal.objects.get(id=pk).animalTypes.all().values_list('id', flat=True))
         # Обновление информации о животном
         return super(AnimalViewSet, self).update(request, pk)
 
@@ -621,14 +623,14 @@ class AnimalViewSet(viewsets.ModelViewSet):
                 startdatetime = None
             else:
                 try:
-                    startdatetime = datetime.fromisoformat(self.request.query_params.get('startDateTime'))
+                    startdatetime = datetime.fromisoformat(self.request.query_params.get('startDateTime')[:-1])
                 except:
                     return JsonResponse("ERROR 400", safe=False, status=400)
             if self.request.query_params.get('endDateTime') is None:
                 enddatetime = None
             else:
                 try:
-                    enddatetime = datetime.fromisoformat(self.request.query_params.get('endDateTime'))
+                    enddatetime = datetime.fromisoformat(self.request.query_params.get('endDateTime')[:-1])
                 except:
                     return JsonResponse("ERROR 400", safe=False, status=400)
 
