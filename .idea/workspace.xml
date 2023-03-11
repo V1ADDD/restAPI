@@ -2,12 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="213599fe-49b1-4fe7-b771-a3ddff0c9c62" name="Changes" comment="models">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/api_authenticate.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/api_authenticate.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,7 +87,9 @@
       <workItem from="1677073530229" duration="45577000" />
       <workItem from="1677439010860" duration="685000" />
       <workItem from="1677440305692" duration="5762000" />
-      <workItem from="1677607288948" duration="33221000" />
+      <workItem from="1677607288948" duration="36117000" />
+      <workItem from="1677872396081" duration="7197000" />
+      <workItem from="1678475791905" duration="15959000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <created>1676488071784</created>

@@ -4,12 +4,19 @@ services:
   database:
     image: postgres:14
     restart: always
+    ports:
+      - "0.0.0.0:5432:8080"
     volumes:
-      - ./dump:/var/lib/postgresql/data
+      - /var/lib/postgresql/data
     environment:
       - POSTGRES_DB=animal-chipization
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   webapi:
     build:
@@ -23,7 +30,8 @@ services:
     ports:
       - "0.0.0.0:8080:8080"
     depends_on:
-      - database
+      database:
+        condition: service_healthy
 
   tests:
     image: mrexpen/planet_olymp_phase1
