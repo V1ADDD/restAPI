@@ -13,7 +13,7 @@ services:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "animal-chipization", "-U", "user" ]
       interval: 10s
       timeout: 10s
       retries: 5
