@@ -5,10 +5,9 @@
       <change beforePath="$PROJECT_DIR$/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/.dockerignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/restAPI/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/restAPI/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/restAPI/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/restAPI/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,16 +36,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/Users/rusak/OneDrive/Pulpit/portfolio/restAPI"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\rusak\OneDrive\Pulpit\portfolio\restAPI" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\rusak\OneDrive\Pulpit\portfolio\restAPI\restAPI" />
       <recent name="C:\Users\rusak\OneDrive\Pulpit\portfolio\restAPI" />
       <recent name="C:\Users\rusak\OneDrive\Pulpit\portfolio\restAPI\docker" />
       <recent name="C:\Users\rusak\OneDrive\Pulpit\portfolio\restAPI\docker\app" />
@@ -95,7 +99,7 @@
       <workItem from="1677607288948" duration="36117000" />
       <workItem from="1677872396081" duration="7197000" />
       <workItem from="1678475791905" duration="21481000" />
-      <workItem from="1678567246453" duration="9975000" />
+      <workItem from="1678567246453" duration="14104000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <created>1676488071784</created>

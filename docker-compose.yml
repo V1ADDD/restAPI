@@ -9,11 +9,11 @@ services:
     volumes:
       - /var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=animal-chipization
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASS}
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "animal-chipization", "-U", "user" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "${DATABASE_NAME}", "-U", "${DATABASE_USER}" ]
       interval: 10s
       timeout: 10s
       retries: 5

@@ -1,2 +1,4 @@
 dump
 venv
+restAPI/.env
+.env
