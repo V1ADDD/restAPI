@@ -12,10 +12,10 @@
 
 ## Результат участия
 
-Из 2475 участников занял ~70 место, набрав 76 баллов, и прошел в следующий этап: 
+Из 2475 участников занял ~70 место, набрав 76 баллов, и прошел в следующий этап:  
 https://challenge.braim.org/it-planet/upload/Protocol/Protocol_1_stage_if_else.pdf
 
 ## Задача
 
-ТЗ можно найти по ссылке ниже:
+ТЗ можно найти по ссылке ниже:  
 https://docs.google.com/document/d/1ZuecJ0Ww3zYUCr0pp7efFNKGQuaDml4dMN-NxnwPPOM/edit?usp=sharing
