@@ -4,7 +4,7 @@
 
 ## Как запустить
 
-Установите пакеты из requirements.txt и python3.9
+Установите пакеты из requirements.txt и python3.9\n
 Создать файл .env со значениями DATABASE_NAME, DATABASE_USER, DATABASE_PASS для БД Postgres
 Для запуска нужно ввести команду python manage.py runserver
 Для проверки работы кода рекомендуется использовать PostMan или аналогичный софт
