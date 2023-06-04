@@ -2,10 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="213599fe-49b1-4fe7-b771-a3ddff0c9c62" name="Changes" comment="models">
-      <change beforePath="$PROJECT_DIR$/.dockerignore" beforeDir="false" afterPath="$PROJECT_DIR$/.dockerignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/data.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/api.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/tests.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/main/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/restAPI/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/restAPI/settings.py" afterDir="false" />
     </list>
@@ -21,6 +27,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -42,7 +49,10 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "C:/Users/rusak/OneDrive/Pulpit/portfolio/restAPI"
+    "last_opened_file_path": "C:/Users/rusak/OneDrive/Pulpit/portfolio/restAPI",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -100,6 +110,20 @@
       <workItem from="1677872396081" duration="7197000" />
       <workItem from="1678475791905" duration="21481000" />
       <workItem from="1678567246453" duration="14104000" />
+      <workItem from="1678688841240" duration="4819000" />
+      <workItem from="1678731470014" duration="1858000" />
+      <workItem from="1678993182180" duration="1959000" />
+      <workItem from="1679033556955" duration="5000" />
+      <workItem from="1680367283217" duration="14299000" />
+      <workItem from="1680620465724" duration="1186000" />
+      <workItem from="1680707584136" duration="39890000" />
+      <workItem from="1681633680409" duration="8331000" />
+      <workItem from="1681658312214" duration="995000" />
+      <workItem from="1681659697039" duration="7014000" />
+      <workItem from="1681718647342" duration="27484000" />
+      <workItem from="1681754618022" duration="62000" />
+      <workItem from="1681832882880" duration="2128000" />
+      <workItem from="1685897910159" duration="135000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <created>1676488071784</created>

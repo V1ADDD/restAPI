@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   database:
-    image: postgres:14
+    image: postgres:latest
     restart: always
     ports:
       - "0.0.0.0:5432:8080"
@@ -17,14 +17,17 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
-
+  
   webapi:
     build:
       context: .
       dockerfile: Dockerfile
     restart: on-failure
     command: >
-      bash -c "python manage.py migrate --noinput && python manage.py flush --noinput && python manage.py runserver 0.0.0.0:8080"
+      bash -c "python manage.py migrate --noinput;
+      python manage.py flush --noinput; 
+      PGPASSWORD=${DATABASE_PASS} psql -h database -U ${DATABASE_USER} -d ${DATABASE_NAME} -W -f data.sql;
+      python manage.py runserver 0.0.0.0:8080"
     volumes:
       - .:/code
     ports:
@@ -34,7 +37,7 @@ services:
         condition: service_healthy
 
   tests:
-    image: mrexpen/planet_olymp_phase1
+    image: mrexpen/planet_olymp_phase2
     pull_policy: always
     ports:
       - "0.0.0.0:8090:8080"
@@ -43,5 +46,3 @@ services:
     environment:
       SERVER_URL: http://webapi:8080
       STAGE: all
-      # all - запуск всех тестов из трёх доступных этапов
-      # 0, 1 или 2 - запуск тестов для соответствующего этапа

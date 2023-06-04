@@ -1,17 +1,26 @@
 from datetime import datetime
 
+from django.db.models import JSONField
 from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
-
-# Create your models here.
 
 class Account(models.Model):
     firstName = models.CharField(max_length=150)
     lastName = models.CharField(max_length=150)
     email = models.EmailField(max_length=150)
     password = models.CharField(max_length=150)
+    role = models.CharField(
+        max_length=10,
+        choices=[
+            ('ADMIN', 'ADMIN'),
+            ('CHIPPER', 'CHIPPER'),
+            ('USER', 'USER')
+        ],
+        default='USER',
+        blank=True
+    )
 
     def __str__(self):
         return self.firstName + " " + self.lastName
@@ -35,7 +44,7 @@ class AnimalType(models.Model):
     type = models.CharField(max_length=150)
 
     def __str__(self):
-        return str(self.id)+". "+self.type
+        return str(self.id) + ". " + self.type
 
     class Meta:
         ordering = ['id']
@@ -46,10 +55,15 @@ class AnimalLocation(models.Model):
     locationPointId = models.ForeignKey(Location, on_delete=models.PROTECT)
 
     def __str__(self):
-        return str(self.id)+". "+str(self.locationPointId.id)
+        return str(self.id) + ". " + str(self.locationPointId.id)
 
     class Meta:
         ordering = ['dateTimeOfVisitLocationPoint']
+
+
+class Area(models.Model):
+    name = models.CharField(max_length=150)
+    areaPoints = JSONField()
 
 
 class Animal(models.Model):
@@ -58,7 +72,8 @@ class Animal(models.Model):
     length = models.FloatField()
     height = models.FloatField()
     gender = models.CharField(max_length=15, choices=[('MALE', 'MALE'), ('FEMALE', 'FEMALE'), ('OTHER', 'OTHER')])
-    lifeStatus = models.CharField(max_length=10, choices=[('ALIVE', 'ALIVE'), ('DEAD', 'DEAD')], default='ALIVE', blank=True)
+    lifeStatus = models.CharField(max_length=10, choices=[('ALIVE', 'ALIVE'), ('DEAD', 'DEAD')], default='ALIVE',
+                                  blank=True)
     chippingDateTime = models.DateTimeField(auto_now_add=True, blank=True)
     chipperId = models.ForeignKey(Account, on_delete=models.PROTECT)
     chippingLocationId = models.ForeignKey(Location, on_delete=models.PROTECT)

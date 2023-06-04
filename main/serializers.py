@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Account, Location, AnimalType, AnimalLocation, Animal
+from .models import Account, Location, AnimalType, AnimalLocation, Animal, Area
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -24,6 +24,12 @@ class AnimalTypeSerializer(serializers.ModelSerializer):
 class AnimalLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnimalLocation
+        fields = '__all__'
+
+
+class AreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Area
         fields = '__all__'
 
 
